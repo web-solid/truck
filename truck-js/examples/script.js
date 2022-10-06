@@ -218,12 +218,30 @@ function fileRead(e) {
   reader.readAsArrayBuffer(file0);
   reader.onload = function () {
     const result = new Uint8Array(reader.result);
-    const solid = Truck.Solid.from_json(result);
-    if (typeof solid === "undefined") {
-      console.warn("invalid json");
-      return;
+    const ext = file0.name.split('.').pop();
+    let solid;
+    if(ext == 'json'){
+      solid = Truck.Solid.from_json(result);
+      if (typeof solid === "undefined") {
+        console.warn("invalid json");
+        return;
+      }
+      polygon = solid.to_polygon(0.01);
+    }else if(ext == 'stl'){
+      solid = Truck.PolygonMesh.from_stl(result);
+      if (typeof solid === "undefined") {
+        console.warn("invalid stl");
+        return;
+      }
+      polygon = solid;
+    }else if(ext == 'obj'){
+      solid = Truck.PolygonMesh.from_obj(result);
+      if (typeof solid === "undefined") {
+        console.warn("invalid obj");
+        return;
+      }
+      polygon = solid;
     }
-    polygon = solid.to_polygon(0.01);
     if (typeof polygon === "undefined") {
       console.warn("meshing failed");
       return;
